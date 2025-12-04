@@ -555,72 +555,19 @@ document.addEventListener('DOMContentLoaded', function() {
     renderInstitutes();
     renderColleges();
     setupFilters();
-    initMap();
     setupModal();
 });
 
-// Инициализация карты
-function initMap() {
-    // Создаем карту с центром на России
-    const map = L.map('map').setView([55.7558, 37.6173], 4);
-    
-    // Добавляем слой с картой
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    
-    // Добавляем маркеры для институтов
-    institutesData.forEach(institute => {
-        if (institute.coordinates) {
-            const marker = L.marker(institute.coordinates).addTo(map);
-            marker.bindPopup(`
-                <b>${institute.name}</b><br>
-                ${institute.location}<br>
-                <button onclick="openDetailsModal('institute', ${institute.id})" class="btn" style="margin-top: 10px; padding: 5px 10px; font-size: 12px;">Подробнее</button>
-            `);
-        }
-    });
-    
-    // Добавляем маркеры для колледжей другого цвета
-    collegesData.forEach(college => {
-        if (college.coordinates) {
-            // Создаем кастомную иконку для колледжей
-            const collegeIcon = L.icon({
-                iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-                        <circle cx="16" cy="16" r="14" fill="${encodeURIComponent('#f72585')}" stroke="white" stroke-width="2"/>
-                        <text x="16" y="22" text-anchor="middle" fill="white" font-size="14" font-weight="bold">К</text>
-                    </svg>
-                `),
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, -16]
-            });
-            
-            const marker = L.marker(college.coordinates, {icon: collegeIcon}).addTo(map);
-            marker.bindPopup(`
-                <b>${college.name}</b><br>
-                ${college.location}<br>
-                <button onclick="openDetailsModal('college', ${college.id})" class="btn" style="margin-top: 10px; padding: 5px 10px; font-size: 12px; background-color: #f72585;">Подробнее</button>
-            `);
-        }
-    });
-}
-
 // Настройка модального окна
 function setupModal() {
-    const modal = document.getElementById("detailsModal");
-    const span = document.getElementsByClassName("close")[0];
-    
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-    
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+    document.getElementById('close-modal').addEventListener('click', closeDetailsModal);
+
+    window.addEventListener('click', (event) => {
+        const modal = document.getElementById('detailsModal');
+        if (event.target === modal) {
+            closeDetailsModal();
         }
-    }
+    });
 }
 
 // Открытие модального окна с детальной информацией
@@ -684,6 +631,12 @@ function openDetailsModal(type, id) {
     `;
     
     document.getElementById("detailsModal").style.display = "block";
+}
+
+// Закрытие модального окна
+function closeDetailsModal() {
+    const modal = document.getElementById("detailsModal");
+    modal.style.display = 'none';
 }
 
 // Показать определенный вопрос
